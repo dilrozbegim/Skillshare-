@@ -1,3 +1,1 @@
-hello
-# Skillshare-
-# globe.html
+globe
