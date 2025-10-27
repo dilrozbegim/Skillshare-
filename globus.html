@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kosmos Menyusi va 3D Yer</title>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+      font-family: "Poppins", sans-serif;
+      color: #fff;
+      display: flex;
+      background: radial-gradient(circle at center, #000020, #000);
+    }
+
+
+    /* Chap tomonda 3D globus uchun joy */
+    #globe-container {
+      width: 75%;
+      height: 100vh;
+    }
+
+
+    /* O‘ng tomondagi menyu paneli */
+    .menu-panel {
+      width: 25%;
+      height: 100vh;
+      background: rgba(10, 15, 30, 0.85);
+      backdrop-filter: blur(10px);
+      border-left: 2px solid rgba(255, 255, 255, 0.1);
+      box-shadow: -5px 0 20px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      padding: 2rem;
+      gap: 1.5rem;
+    }
+
+
+    /* Qidiruv paneli */
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2rem;
+      padding: 0.5rem 1rem;
+    }
+
+
+    .search-box input {
+      border: none;
+      background: transparent;
+      color: white;
+      width: 100%;
+      outline: none;
+      padding: 0.5rem;
+    }
+
+
+    .search-box input::placeholder {
+      color: #aaa;
+    }
+
+
+    /* Vertikal menyu */
+    .pill-vertical-container {
+      --main-color: #ff6ec4;
+      --secondary-color: #7873f5;
+      --text-color: #ddd;
+      --pill-bg: rgba(30, 30, 40, 0.8);
+
+
+      background: var(--pill-bg);
+      border-radius: 1.5rem;
+      box-shadow: 0 0 15px #000 inset;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      padding: 0.5rem;
+      gap: 0.8rem;
+      overflow: hidden;
+    }
+
+
+    .pill-vertical-container input {
+      display: none;
+    }
+
+
+    .pill-vertical-container label {
+      position: relative;
+      padding: 0.9rem 1rem;
+      border-radius: 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--text-color);
+      transition: color 0.3s ease-in-out, background 0.3s ease-in-out;
+      z-index: 2;
+      text-align: center;
+    }
+
+
+    .pill-vertical-container label:hover {
+      color: var(--main-color);
+      background: rgba(255,255,255,0.05);
+    }
+
+
+    .pill-vertical-container input:checked + label {
+      background: linear-gradient(to right, var(--main-color), var(--secondary-color));
+      color: #fff;
+      box-shadow: 0 0 10px rgba(120, 115, 245, 0.6);
+    }
+
+
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+
+  <!-- Chapda: 3D globus -->
+  <div id="globe-container"></div>
+
+
+  <!-- O‘ngda: menyu panel -->
+  <div class="menu-panel">
+    <div class="search-box">
+      <input type="text" placeholder="Qidiruv... 🔍">
+    </div>
+
+
+    <div class="pill-vertical-container">
+      <input type="radio" id="pill-planet" name="menu" checked>
+      <label for="pill-planet">🌍 Sayyoralar</label>
+
+
+      <input type="radio" id="pill-constellation" name="menu">
+      <label for="pill-constellation">✨ Yulduz turkumlari</label>
+
+
+      <input type="radio" id="pill-stars" name="menu">
+      <label for="pill-stars">⭐ Yulduzlar</label>
+
+
+      <input type="radio" id="pill-blackhole" name="menu">
+      <label for="pill-blackhole">🌀 Qora tuynuk</label>
+
+
+      <input type="radio" id="pill-meteor" name="menu">
+      <label for="pill-meteor">☄️ Metioritlar</label>
+    </div>
+  </div>
+
+
+  <!-- Three.js kutubxonalari -->
+  <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+  <script src="https://unpkg.com/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+
+  <script>
+    // Sahna
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(
+      75,
+      (window.innerWidth * 0.75) / window.innerHeight,
+      0.1,
+      1000
+    );
+
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const container = document.getElementById("globe-container");
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    container.appendChild(renderer.domElement);
+
+
+    // Yoritish
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(5, 3, 5);
+    scene.add(light);
+
+
+    // Yer materiali
+    const loader = new THREE.TextureLoader();
+    const earthTexture = loader.load("https://threejs.org/examples/textures/land_ocean_ice_cloud_2048.jpg");
+    const earth = new THREE.Mesh(
+      new THREE.SphereGeometry(2, 64, 64),
+      new THREE.MeshPhongMaterial({ map: earthTexture })
+    );
+    scene.add(earth);
+
+
+    camera.position.z = 5;
+
+
+    // Nazorat (aylantirish)
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+
+
+    function animate() {
+      requestAnimationFrame(animate);
+      earth.rotation.y += 0.002;
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+
+    // Oyna o‘lchami o‘zgarsa
+    window.addEventListener("resize", () => {
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.updateProjectionMatrix();
+    });
+  </script>
+
+
+</body>
+</html>
+
+
+
